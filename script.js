@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "Twirl": "twirl"
     };
 
-    const audioPlayer = document.getElementById('audio-player');
+
     const waveContainer = document.getElementById('wave-animation-container');
 
     // SVG Wave Animation as Full-Width Background
@@ -50,18 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
         waveContainer.classList.add('hidden');
     }
 
-    // Add event listeners for audio playback
-    audioPlayer.addEventListener('play', () => {
-        addWaveAnimation();
-    });
 
-    audioPlayer.addEventListener('pause', () => {
-        removeWaveAnimation();
-    });
-
-    audioPlayer.addEventListener('ended', () => {
-        removeWaveAnimation();
-    });
 
 
 
@@ -120,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Submit Speech Button
     submitButton.addEventListener('click', function () {
+        console.log("ddd")
         submitSpeech();
     });
 
@@ -148,10 +138,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!inputText.trim()) return;
 
         // Show loading toaster
-        showToaster("Pippin thinking...");
+        showToaster("Pippin is crafting a response to your question..");
+
+        // Hide Replay button when submitting a new question
+        const replayButton = document.getElementById('replay-button');
+        replayButton.classList.add('hidden');
 
         // Make API call with POST request
-        fetch('http://104.198.103.82:5000/landing/get-gpt-response', {
+        fetch('https://pippin.blockforge.live/landing/get-gpt-response', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -163,45 +157,34 @@ document.addEventListener('DOMContentLoaded', function () {
                 hideToaster();
 
                 const audioUrl = data.audio_url;
-                const animationTitle = data.animation; // Optional: Use this for additional effects
+                const animationTitle = data.animation;
 
                 if (audioUrl) {
-                    const audioPlayer = document.getElementById('audio-player');
-                    const audioContainer = document.getElementById('audio-player-container');
+                    const audio = new Audio(audioUrl);
 
-                    // Set the audio source and show the player
-                    audioPlayer.src = audioUrl;
-                    audioContainer.classList.remove('hidden');
+                    // Add wave animation when audio starts
+                    audio.addEventListener('play', addWaveAnimation);
 
-                    // Play the audio automatically on first load
-                    audioPlayer.play();
+                    // Remove wave animation when audio ends
+                    audio.addEventListener('ended', removeWaveAnimation);
 
-                    // Add animation for the audio player when playing
-                    audioPlayer.addEventListener('play', () => {
-                        audioContainer.classList.add('playing');
-                        audioContainer.classList.remove('paused');
-                    });
+                    // Play the audio automatically
+                    audio.play();
 
-                    // Remove animation when audio is paused
-                    audioPlayer.addEventListener('pause', () => {
-                        audioContainer.classList.remove('playing');
-                        audioContainer.classList.add('paused');
-                    });
+                    // Show Replay button when audio starts playing
+                    replayButton.classList.remove('hidden');
 
-                    // Remove animation when audio ends
-                    audioPlayer.addEventListener('ended', () => {
-                        audioContainer.classList.remove('playing');
-                        audioContainer.classList.add('paused');
-                    });
-
+                    // Handle Replay button click
+                    replayButton.onclick = () => {
+                        audio.currentTime = 0; // Reset audio to the beginning
+                        audio.play();
+                    };
 
                     // Trigger the relevant animation
                     const animationName = animationMapping[animationTitle];
                     if (animationName && animations[animationName]) {
                         animations[animationName]();
                     }
-
-                  
                 }
 
                 // Clear input field after submission
@@ -245,155 +228,204 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('speech-input').value = '';
         }
     }
+    let currentInterval = null; // Global tracker for the currently running animation loop
 
     const animations = {
         wave: function () {
             return new Promise(function (resolve) {
                 const frontLegHoof = document.querySelector('#front-leg-hoof');
 
-                frontLegHoof.classList.add('wave-animation');
+                // Clear any previous animation loop
+                clearAnimationLoop();
 
-                frontLegHoof.addEventListener('animationend', function handler() {
-                    frontLegHoof.classList.remove('wave-animation');
-                    frontLegHoof.style.transform = 'none';
-                    frontLegHoof.removeEventListener('animationend', handler);
-                    resolve();
-                });
+                // Start a new animation loop
+                currentInterval = setInterval(() => {
+                    frontLegHoof.classList.add('wave-animation');
+                    frontLegHoof.addEventListener('animationend', function handler() {
+                        frontLegHoof.classList.remove('wave-animation');
+                        frontLegHoof.removeEventListener('animationend', handler);
+                    });
+                }, 500); // Adjust timing as needed
             });
         },
         jump: function () {
             return new Promise(function (resolve) {
-                unicorn.classList.add('jump-animation');
+                const unicorn = document.getElementById('unicorn');
 
-                unicorn.addEventListener('animationend', function handler() {
-                    unicorn.classList.remove('jump-animation');
-                    unicorn.style.transform = 'none';
-                    unicorn.removeEventListener('animationend', handler);
-                    resolve();
-                });
+                // Clear any previous animation loop
+                clearAnimationLoop();
+
+                // Start a new animation loop
+                currentInterval = setInterval(() => {
+                    unicorn.classList.add('jump-animation');
+                    unicorn.addEventListener('animationend', function handler() {
+                        unicorn.classList.remove('jump-animation');
+                        unicorn.removeEventListener('animationend', handler);
+                    });
+                }, 500); // Adjust timing to match the animation duration
             });
         },
         wagTail: function () {
             return new Promise(function (resolve) {
                 const tail = document.querySelector('#tail');
 
-                tail.classList.add('wag-tail-animation');
+                // Clear any previous animation loop
+                clearAnimationLoop();
 
-                tail.addEventListener('animationend', function handler() {
-                    tail.classList.remove('wag-tail-animation');
-                    tail.style.transform = 'none';
-                    tail.removeEventListener('animationend', handler);
-                    resolve();
-                });
+                // Start a new animation loop
+                currentInterval = setInterval(() => {
+                    tail.classList.add('wag-tail-animation');
+                    tail.addEventListener('animationend', function handler() {
+                        tail.classList.remove('wag-tail-animation');
+                        tail.removeEventListener('animationend', handler);
+                    });
+                }, 500); // Adjust timing as needed
             });
         },
         blink: function () {
             return new Promise(function (resolve) {
                 const eyes = document.querySelector('#eyes');
 
-                eyes.classList.add('blink-animation');
+                // Clear any previous animation loop
+                clearAnimationLoop();
 
-                eyes.addEventListener('animationend', function handler() {
-                    eyes.classList.remove('blink-animation');
-                    eyes.style.opacity = '1';
-                    eyes.removeEventListener('animationend', handler);
-                    resolve();
-                });
+                // Start a new animation loop
+                currentInterval = setInterval(() => {
+                    eyes.classList.add('blink-animation');
+                    eyes.addEventListener('animationend', function handler() {
+                        eyes.classList.remove('blink-animation');
+                        eyes.removeEventListener('animationend', handler);
+                    });
+                }, 500); // Adjust timing as needed
             });
         },
         nodHead: function () {
             return new Promise(function (resolve) {
                 const headNeckGroup = document.querySelector('#head-neck-group');
 
-                headNeckGroup.classList.add('nod-head-animation');
+                // Clear any previous animation loop
+                clearAnimationLoop();
 
-                headNeckGroup.addEventListener('animationend', function handler() {
-                    headNeckGroup.classList.remove('nod-head-animation');
-                    headNeckGroup.style.transform = 'none';
-                    headNeckGroup.removeEventListener('animationend', handler);
-                    resolve();
-                });
+                // Start a new animation loop
+                currentInterval = setInterval(() => {
+                    headNeckGroup.classList.add('nod-head-animation');
+                    headNeckGroup.addEventListener('animationend', function handler() {
+                        headNeckGroup.classList.remove('nod-head-animation');
+                        headNeckGroup.removeEventListener('animationend', handler);
+                    });
+                }, 500); // Adjust timing as needed
             });
         },
         wiggleEars: function () {
             return new Promise(function (resolve) {
                 const ears = document.querySelector('#ears');
 
-                ears.classList.add('wiggle-ears-animation');
+                // Clear any previous animation loop
+                clearAnimationLoop();
 
-                ears.addEventListener('animationend', function handler() {
-                    ears.classList.remove('wiggle-ears-animation');
-                    ears.style.transform = 'none';
-                    ears.removeEventListener('animationend', handler);
-                    resolve();
-                });
+                // Start a new animation loop
+                currentInterval = setInterval(() => {
+                    ears.classList.add('wiggle-ears-animation');
+                    ears.addEventListener('animationend', function handler() {
+                        ears.classList.remove('wiggle-ears-animation');
+                        ears.removeEventListener('animationend', handler);
+                    });
+                }, 500); // Adjust timing as needed
             });
         },
         shakeMane: function () {
             return new Promise(function (resolve) {
                 const mane = document.querySelector('#mane');
 
-                mane.classList.add('shake-mane-animation');
+                // Clear any previous animation loop
+                clearAnimationLoop();
 
-                mane.addEventListener('animationend', function handler() {
-                    mane.classList.remove('shake-mane-animation');
-                    mane.style.transform = 'none';
-                    mane.removeEventListener('animationend', handler);
-                    resolve();
-                });
+                // Start a new animation loop
+                currentInterval = setInterval(() => {
+                    mane.classList.add('shake-mane-animation');
+                    mane.addEventListener('animationend', function handler() {
+                        mane.classList.remove('shake-mane-animation');
+                        mane.removeEventListener('animationend', handler);
+                    });
+                }, 500); // Adjust timing as needed
             });
         },
         shootHorn: function () {
             return new Promise(function (resolve) {
                 const horn = document.querySelector('#horn');
 
-                horn.classList.add('shoot-horn-animation');
+                // Clear any previous animation loop
+                clearAnimationLoop();
 
-                horn.addEventListener('animationend', function handler() {
-                    horn.classList.remove('shoot-horn-animation');
-                    horn.style.transform = 'none';
-                    horn.removeEventListener('animationend', handler);
-                    resolve();
-                });
+                // Start a new animation loop
+                currentInterval = setInterval(() => {
+                    horn.classList.add('shoot-horn-animation');
+                    horn.addEventListener('animationend', function handler() {
+                        horn.classList.remove('shoot-horn-animation');
+                        horn.removeEventListener('animationend', handler);
+                    });
+                }, 500); // Adjust timing as needed
             });
         },
         rainbowBody: function () {
             return new Promise(function (resolve) {
                 const bodyShape = document.querySelector('#body-shape');
 
-                bodyShape.classList.add('rainbow-body-animation');
+                // Clear any previous animation loop
+                clearAnimationLoop();
 
-                bodyShape.addEventListener('animationend', function handler() {
-                    bodyShape.classList.remove('rainbow-body-animation');
-                    bodyShape.style.fill = '#fff';
-                    bodyShape.removeEventListener('animationend', handler);
-                    resolve();
-                });
+                // Start a new animation loop
+                currentInterval = setInterval(() => {
+                    bodyShape.classList.add('rainbow-body-animation');
+                    bodyShape.addEventListener('animationend', function handler() {
+                        bodyShape.classList.remove('rainbow-body-animation');
+                        bodyShape.removeEventListener('animationend', handler);
+                    });
+                }, 500); // Adjust timing as needed
             });
         },
         spin: function () {
             return new Promise(function (resolve) {
-                unicorn.classList.add('spin-animation');
+                const unicorn = document.getElementById('unicorn');
 
-                unicorn.addEventListener('animationend', function handler() {
-                    unicorn.classList.remove('spin-animation');
-                    unicorn.style.transform = 'none';
-                    unicorn.removeEventListener('animationend', handler);
-                    resolve();
-                });
+                // Clear any previous animation loop
+                clearAnimationLoop();
+
+                // Start a new animation loop
+                currentInterval = setInterval(() => {
+                    unicorn.classList.add('spin-animation');
+                    unicorn.addEventListener('animationend', function handler() {
+                        unicorn.classList.remove('spin-animation');
+                        unicorn.removeEventListener('animationend', handler);
+                    });
+                }, 500); // Adjust timing as needed
             });
         },
         twirl: function () {
             return new Promise(function (resolve) {
-                unicorn.classList.add('twirl-animation');
+                const unicorn = document.getElementById('unicorn');
 
-                unicorn.addEventListener('animationend', function handler() {
-                    unicorn.classList.remove('twirl-animation');
-                    unicorn.style.transform = 'none';
-                    unicorn.removeEventListener('animationend', handler);
-                    resolve();
-                });
+                // Clear any previous animation loop
+                clearAnimationLoop();
+
+                // Start a new animation loop
+                currentInterval = setInterval(() => {
+                    unicorn.classList.add('twirl-animation');
+                    unicorn.addEventListener('animationend', function handler() {
+                        unicorn.classList.remove('twirl-animation');
+                        unicorn.removeEventListener('animationend', handler);
+                    });
+                }, 500); // Adjust timing as needed
             });
         }
     };
+
+    // Helper function to clear the current animation loop
+    function clearAnimationLoop() {
+        if (currentInterval) {
+            clearInterval(currentInterval);
+            currentInterval = null;
+        }
+    }
+
 });

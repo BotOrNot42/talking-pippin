@@ -2,11 +2,11 @@
 
 [Pippin the Unicorn](https://x.com/pippinlovesyou)
 
-Welcome to **Pippin Moves**, a playful tool designed to experiment with animating Pippin the Unicorn's SVG. This project serves as a template/inspiration for developers who want to create new animations or tools for Pippin, fostering creativity within the $pippin community.
+Welcome to **Pippin Talking**, a playful tool designed to experiment with animating Pippin the Unicorn's SVG. This project serves as a template/inspiration for developers who want to create new animations or tools for Pippin, fostering creativity within the $pippin community.
 
 ## Live Demo
 
-Experience Pippin in action: [https://pippinmoves.replit.app/](https://pippinmoves.replit.app/)
+Experience Pippin in action: [https://talking-pippin.vercel.app/](https://talking-pippin.vercel.app/)
 
 ## Features
 

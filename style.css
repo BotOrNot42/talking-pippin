@@ -19,7 +19,7 @@ body {
 #unicorn-container {
     position: relative;
     width: 100%;
-    max-width: 400px;
+    max-width: 350px;
     height: auto;
     margin: auto;
 }
@@ -443,16 +443,24 @@ body.bg-grass {
 
 
 
-#audio-player {
-    margin-top: 10px;
-    width: 300px;
+#audio-controls-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* Audio player container */
-#audio-player-container {
-    position: relative;
-    z-index: 10; /* Keep it above the background */
-    text-align: center;
+#replay-button {
+    width: 70px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+#replay-button:hover {
+    transform: scale(1.2);
+}
+
+.hidden {
+    display: none;
 }
 
 /* Full-width wave animation container */
