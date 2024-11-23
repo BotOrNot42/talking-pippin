@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const unicorn = document.querySelector('#unicorn');
     const submitButton = document.getElementById('submit-button');
     const removeButton = document.getElementById('remove-button');
-    const unicornContainer = document.getElementById('unicorn-container');
+    const unicornContainer = document.getElementById('speech-bubble-container');
     const body = document.body;
     const animationMapping = {
         "Wave": "wave",
@@ -158,35 +158,65 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const audioUrl = data.audio_url;
                 const animationTitle = data.animation;
+                const pippinResponse = data.pippin_response
+
+
+                // Create or update speech bubble
+                if (!speechBubble) {
+                    speechBubble = document.createElement('div');
+                    speechBubble.classList.add('speech-bubble');
+                    unicornContainer.appendChild(speechBubble);
+                    removeButton.classList.remove('hidden');
+                }
+
+                // Clear previous content and add bubble-text element
+                speechBubble.innerHTML = '<span class="bubble-text"></span>';
+                const bubbleTextElement = speechBubble.querySelector('.bubble-text');
 
                 if (audioUrl) {
                     const audio = new Audio(audioUrl);
 
-                    // Add wave animation when audio starts
-                    audio.addEventListener('play', addWaveAnimation);
 
-                    // Remove wave animation when audio ends
-                    audio.addEventListener('ended', removeWaveAnimation);
+                    audio.onloadedmetadata = () => {
+                        const audioDuration = audio.duration * 1000; // Convert to milliseconds
+                        const typingSpeed = Math.max(audioDuration / pippinResponse.length, 20); // Min speed of 20ms
 
-                    // Play the audio automatically
-                    audio.play();
+                        // Start typing immediately
+                        typeText(pippinResponse, bubbleTextElement, typingSpeed);
 
-                    // Show Replay button when audio starts playing
-                    replayButton.classList.remove('hidden');
+                        // Delay audio by a fraction of a second to sync with typing
+                        setTimeout(() => {
+                            // Add wave animation when audio starts
+                            audio.addEventListener('play', addWaveAnimation);
 
-                    // Handle Replay button click
-                    replayButton.onclick = () => {
-                        audio.currentTime = 0; // Reset audio to the beginning
-                        audio.play();
+                            // Remove wave animation when audio ends
+                            audio.addEventListener('ended', removeWaveAnimation);
+
+                            // Play the audio automatically
+                            audio.play();
+
+                            // Show Replay button when audio starts playing
+                            replayButton.classList.remove('hidden');
+
+                            // Handle Replay button click
+                            replayButton.onclick = () => {
+                                audio.currentTime = 0; // Reset audio to the beginning
+                                audio.play();
+                            };
+
+                            // Trigger the relevant animation
+                            const animationName = animationMapping[animationTitle];
+                            if (animationName && animations[animationName]) {
+                                animations[animationName]();
+                            }
+                        }, 200); // 200ms delay for better synchronization
                     };
 
-                    // Trigger the relevant animation
-                    const animationName = animationMapping[animationTitle];
-                    if (animationName && animations[animationName]) {
-                        animations[animationName]();
-                    }
+
                 }
 
+
+            
                 // Clear input field after submission
                 document.getElementById('speech-input').value = '';
             })
