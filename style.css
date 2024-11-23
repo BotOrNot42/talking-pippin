@@ -63,20 +63,52 @@ body {
 
 .speech-bubble {
     position: absolute;
-    right: 30%; /* Distance from the right edge */
     top: 30%; /* Center vertically */
-    transform: translateY(-50%); /* Adjust to true vertical center */
+    right: 10%; /* Default distance from the right edge */
+    transform: translateY(-50%); /* True vertical center */
     background-color: #f9f9f9;
     border: 2px solid #ddd;
     border-radius: 10px;
     padding: 15px;
-    width: 250px;
-    /* max-width: 300px; */
+    width: 90%; /* Responsive width for small screens */
+    max-width: 300px; /* Prevent it from becoming too wide */
     font-size: 16px;
     line-height: 1.5;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Media Query for Larger Screens (Above 1200px) */
+@media (min-width: 1200px) {
+    .speech-bubble {
+        right: 15%; /* More spacing from the right edge */
+        width: 300px; /* Fixed width for larger screens */
+    }
+}
+
+/* Media Query for Medium Screens (Between 768px and 1200px) */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .speech-bubble {
+        right: 8%; /* Medium spacing for mid-sized screens */
+        width: 250px; /* Slightly smaller bubble for mid-sized screens */
+    }
+}
+
+/* Media Query for Small Screens (Below 768px) */
+@media (max-width: 767px) {
+    .speech-bubble {
+        right: 5%; /* Reduce right spacing for small screens */
+        width: 80%; /* Adaptive width for smaller screens */
+        font-size: 14px; /* Smaller font size for better readability */
+    }
+}
+
+/* Media Query for Very Large Screens (Above 1500px) */
+@media (min-width: 1500px) {
+    .speech-bubble {
+        right: 15%; /* Increase spacing to avoid overlap */
+        max-width: 350px; /* Allow slightly larger bubble */
+    }
+}
 /* Pulse animation for speaking effect */
 .speaking {
     animation: pulse 0.5s infinite ease-in-out;
