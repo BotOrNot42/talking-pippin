@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
         replayButton.classList.add('hidden');
 
         // Make API call with POST request
-        fetch('https://api.fomofm.show//landing/pippin-response', {
+        fetch('https://api.fomofm.show/landing/pippin-response', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
